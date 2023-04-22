@@ -2,6 +2,8 @@ import 'package:firestore_operation/basket_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+const String collectionName = "basket";
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -12,52 +14,111 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Item> basketItems = [];
 
-
- //!Initializing fetchRecords in initstate
+  //!Initializing the functions in app startup itself
   @override
   void initState() {
+    //*initialising fetch records function
     fetchRecords();
+    //* initializing the firestore instance in app starts
+    FirebaseFirestore.instance
+        .collection(collectionName)
+        .snapshots()
+        .listen((records) {
+      mapRecords(records);
+    });
     super.initState();
   }
-  
+
   //* Fetching the records from the firestore database
   fetchRecords() async {
-    var records = await FirebaseFirestore.instance.collection("basket").get();
+    var records =
+        await FirebaseFirestore.instance.collection(collectionName).get();
     mapRecords(records);
   }
 
-
   //* fetched records are mapped and passed to a
-  //* list and appending the list items to the main list
+  //* list and appending the list items to the basket list
   mapRecords(QuerySnapshot<Map<String, dynamic>> records) {
-    var _list = records.docs
+    var list = records.docs
         .map((item) =>
             Item(id: item.id, name: item['name'], quantity: item['quantity']))
         .toList();
     setState(() {
-      basketItems = _list;
+      basketItems = list;
     });
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: ListView.builder(
-        itemCount: basketItems.length,
-        itemBuilder: (context, index) {
-          return  Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListTile(
-                title: Text(basketItems[index].name ?? ''),
-                subtitle: Text(basketItems[index].quantity ?? ''),
-                tileColor: Colors.amber,
-                
-              ),
-          );
-          
-        },
-      )),
+          appBar: AppBar(
+            title: const Text("firestore operations"),
+            actions: [
+              IconButton(onPressed: addDialog, icon: const Icon(Icons.add))
+            ],
+          ),
+          body: ListView.builder(
+            itemCount: basketItems.length,
+            itemBuilder: (context, index) {
+              return  Container(
+                padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5)
+                  ),
+                  child: ListTile(
+                    title: Text(basketItems[index].name ?? ''),
+                    subtitle: Text(basketItems[index].quantity ?? ''),
+                    tileColor: Colors.amber,
+                  ),
+                );
+              
+            },
+          )),
     );
+  }
+
+  addDialog() {
+    var nameController = TextEditingController();
+    var quantityController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Dialog(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: nameController,
+                    ),
+                    TextField(
+                      controller: quantityController,
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        var name = nameController.text.trim();
+                        var quantity = quantityController.text.trim();
+                        addItem(name, quantity);
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Add item"),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  addItem(String name, String quantity) {
+    var item = Item(name: name, quantity: quantity);
+    FirebaseFirestore.instance.collection(collectionName).add(item.toJson());
   }
 }
