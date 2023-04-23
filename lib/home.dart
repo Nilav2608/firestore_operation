@@ -62,28 +62,36 @@ class _HomeState extends State<Home> {
           body: ListView.builder(
             itemCount: basketItems.length,
             itemBuilder: (context, index) {
-              return  Padding(
+              return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Slidable(
-                    endActionPane:
-                        ActionPane(
-                        motion: const DrawerMotion(), 
-                        children: [
-                        SlidableAction(
-                        onPressed: (context) =>deleteItem(basketItems[index].id!),
-                        backgroundColor: Colors.red,
+                  endActionPane:
+                      ActionPane(motion: const DrawerMotion(), children: [
+                    SlidableAction(
+                      onPressed: (context) =>
+                          deleteItem(basketItems[index].id!),
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: 'Delete',
+                      spacing: 8,
+                    ),
+                    SlidableAction(
+                        onPressed: (context) {
+                          
+                        },
+                        backgroundColor: Colors.teal,
                         foregroundColor: Colors.white,
                         icon: Icons.delete,
                         label: 'Delete',
                         spacing: 8,
-                      ),
-                    ]),
-                    child: ListTile(
-                      title: Text(basketItems[index].name ?? ''),
-                      subtitle: Text(basketItems[index].quantity ?? ''),
-                      // tileColor: Colors.amber,
-                    ),
-                  
+                      )
+                  ]),
+                  child: ListTile(
+                    title: Text(basketItems[index].name ?? ''),
+                    subtitle: Text(basketItems[index].quantity ?? ''),
+                    // tileColor: Colors.amber,
+                  ),
                 ),
               );
             },
@@ -133,6 +141,14 @@ class _HomeState extends State<Home> {
   addItem(String name, String quantity) {
     var item = Item(name: name, quantity: quantity);
     FirebaseFirestore.instance.collection(collectionName).add(item.toJson());
+  }
+
+  updateItem(String id, String name, String quantity) {
+    
+    FirebaseFirestore.instance.collection(collectionName).doc(id).update({
+      'name' : name,
+      'qunatity' : quantity
+    });
   }
 
   deleteItem(String id) {
