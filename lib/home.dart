@@ -77,15 +77,15 @@ class _HomeState extends State<Home> {
                       spacing: 8,
                     ),
                     SlidableAction(
-                        onPressed: (context) {
-                          
-                        },
-                        backgroundColor: Colors.teal,
-                        foregroundColor: Colors.white,
-                        icon: Icons.delete,
-                        label: 'Delete',
-                        spacing: 8,
-                      )
+                      onPressed: (context) {
+                        updateDialog(basketItems[index].id!);
+                      },
+                      backgroundColor: Colors.teal,
+                      foregroundColor: Colors.white,
+                      icon: Icons.edit,
+                      label: 'Update',
+                      spacing: 8,
+                    )
                   ]),
                   child: ListTile(
                     title: Text(basketItems[index].name ?? ''),
@@ -138,17 +138,56 @@ class _HomeState extends State<Home> {
     );
   }
 
+  updateDialog(String id) {
+    var nameupdateController = TextEditingController();
+    var quantityupdateController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Dialog(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: nameupdateController,
+                    ),
+                    TextField(
+                      controller: quantityupdateController,
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        var name = nameupdateController.text.trim();
+                        var quantity = quantityupdateController.text.trim();
+
+                        updateItem(id, name, quantity);
+                        Navigator.pop(context);
+                      },
+                      child: const Text("update item"),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   addItem(String name, String quantity) {
     var item = Item(name: name, quantity: quantity);
     FirebaseFirestore.instance.collection(collectionName).add(item.toJson());
   }
 
   updateItem(String id, String name, String quantity) {
-    
-    FirebaseFirestore.instance.collection(collectionName).doc(id).update({
-      'name' : name,
-      'qunatity' : quantity
-    });
+    FirebaseFirestore.instance
+        .collection(collectionName)
+        .doc(id)
+        .update({'name': name, 'quantity': quantity});
   }
 
   deleteItem(String id) {
