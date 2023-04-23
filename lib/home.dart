@@ -1,6 +1,7 @@
-import 'package:firestore_operation/basket_model.dart';
+import 'package:firestore_operation/models/basket_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 const String collectionName = "basket";
 
@@ -61,18 +62,30 @@ class _HomeState extends State<Home> {
           body: ListView.builder(
             itemCount: basketItems.length,
             itemBuilder: (context, index) {
-              return  Container(
-                padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5)
-                  ),
-                  child: ListTile(
-                    title: Text(basketItems[index].name ?? ''),
-                    subtitle: Text(basketItems[index].quantity ?? ''),
-                    tileColor: Colors.amber,
-                  ),
-                );
-              
+              return  Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Slidable(
+                    endActionPane:
+                        ActionPane(
+                        motion: const DrawerMotion(), 
+                        children: [
+                        SlidableAction(
+                        onPressed: (context) =>deleteItem(basketItems[index].id!),
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        label: 'Delete',
+                        spacing: 8,
+                      ),
+                    ]),
+                    child: ListTile(
+                      title: Text(basketItems[index].name ?? ''),
+                      subtitle: Text(basketItems[index].quantity ?? ''),
+                      // tileColor: Colors.amber,
+                    ),
+                  
+                ),
+              );
             },
           )),
     );
@@ -120,5 +133,9 @@ class _HomeState extends State<Home> {
   addItem(String name, String quantity) {
     var item = Item(name: name, quantity: quantity);
     FirebaseFirestore.instance.collection(collectionName).add(item.toJson());
+  }
+
+  deleteItem(String id) {
+    FirebaseFirestore.instance.collection(collectionName).doc(id).delete();
   }
 }
