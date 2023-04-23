@@ -68,15 +68,6 @@ class _HomeState extends State<Home> {
                   endActionPane:
                       ActionPane(motion: const DrawerMotion(), children: [
                     SlidableAction(
-                      onPressed: (context) =>
-                          deleteItem(basketItems[index].id!),
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      icon: Icons.delete,
-                      label: 'Delete',
-                      spacing: 8,
-                    ),
-                    SlidableAction(
                       onPressed: (context) {
                         updateDialog(basketItems[index].id!);
                       },
@@ -85,7 +76,16 @@ class _HomeState extends State<Home> {
                       icon: Icons.edit,
                       label: 'Update',
                       spacing: 8,
-                    )
+                    ),
+                    SlidableAction(
+                      onPressed: (context) =>
+                          deleteItem(basketItems[index].id!),
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: 'Delete',
+                      spacing: 8,
+                    ),
                   ]),
                   child: ListTile(
                     title: Text(basketItems[index].name ?? ''),
