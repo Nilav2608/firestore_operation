@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
   void initState() {
     //*initialising fetch records function
     fetchRecords();
-    //* initializing the firestore instance in app starts
+    //* initializing the firestore instance when app starts
     FirebaseFirestore.instance
         .collection(collectionName)
         .snapshots()
